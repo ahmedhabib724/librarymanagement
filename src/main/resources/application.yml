@@ -1,0 +1,8 @@
+server.servlet.context-path: /catalog/api
+server.port: 8777
+
+db:
+  database-path: C:\Database\
+  users-path: C:\Database\Users\
+  books-path: C:\Database\Books\
+  categories-path: C:\Database\Categories\
