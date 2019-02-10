@@ -16,6 +16,13 @@ public class UserController {
 
   @Autowired private UserService userService;
 
+  /**
+   * get user on the basis of userId or search user on the basis of name and cnic
+   * @param userId
+   * @param cnic
+   * @param name
+   * @return
+   */
   @RequestMapping(
       value = {"", "/user-id/{userId}"},
       method = GET)
@@ -27,6 +34,11 @@ public class UserController {
     return userService.getUserById(userId);
   }
 
+  /**
+   * Insert user record
+   * @param users
+   * @return
+   */
   @RequestMapping(value = "", method = POST)
   public Result saveUser(@RequestBody Users users) {
     return userService.saveUser(users);
