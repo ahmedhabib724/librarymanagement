@@ -1,4 +1,4 @@
-package com.ahmed.librarymanangement.user;
+package com.ahmed.librarymanangement.users;
 
 import com.ahmed.librarymanangement.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,36 +11,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/user")
-public class UserController {
+@RequestMapping(value = "/users")
+public class UsersController {
 
-  @Autowired private UserService userService;
+  @Autowired private UsersService usersService;
 
   /**
    * get user on the basis of userId or search user on the basis of name and cnic
-   * @param userId
+   *
+   * @param id
    * @param cnic
-   * @param name
    * @return
    */
   @RequestMapping(
       value = {"", "/user-id/{userId}"},
       method = GET)
   public Result getUser(
-      @PathVariable("userId") Integer userId,
-      @RequestParam(value = "cnic", required = false) String cnic,
-      @RequestParam(value = "name", required = false) String name) {
+      @PathVariable(value = "userId", required = false) Integer id,
+      @RequestParam(value = "cnic", required = false) String cnic) {
 
-    return userService.getUserById(userId);
+    return usersService.getUser(id, cnic);
   }
 
   /**
    * Insert user record
+   *
    * @param users
    * @return
    */
   @RequestMapping(value = "", method = POST)
   public Result saveUser(@RequestBody Users users) {
-    return userService.saveUser(users);
+    return usersService.saveUser(users);
   }
 }

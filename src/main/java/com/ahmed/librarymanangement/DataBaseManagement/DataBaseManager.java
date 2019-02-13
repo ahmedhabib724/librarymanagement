@@ -1,10 +1,6 @@
 package com.ahmed.librarymanangement.DataBaseManagement;
 
-import com.ahmed.librarymanangement.user.Users;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -28,57 +24,93 @@ public class DataBaseManager {
 
     switch (object.getClass().getSimpleName()) {
       case "Users":
-        Users users = (Users) object;
-        writeRecordInFile(
-            users, dataBase.getUsersPath()+fileName+".json");
-        break;
+        writeRecordInFile(object, dataBase.getUsersPath() + fileName + ".json");
+        return object;
       case "Books":
-        break;
+        writeRecordInFile(object, dataBase.getBooksPath() + fileName + ".json");
+        return object;
+      case "Categories":
+        writeRecordInFile(object, dataBase.getCategoriesPath() + fileName + ".json");
+        return object;
       default:
         break;
     }
-    return object;
+    return null;
   }
 
   public void writeRecordInFile(Object object, String filePath) {
     try {
-      String jsonInString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+      String jsonInString =
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
       LOG.info("Insert JSON in to file\n" + jsonInString);
       objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
       objectMapper.writeValue(new File(filePath), object);
     } catch (JsonGenerationException e) {
-      e.printStackTrace();
+      LOG.error("Exceptions occurs while saves {} record ", object.getClass().getSimpleName(), e);
     } catch (JsonMappingException e) {
-      e.printStackTrace();
+      LOG.error("Exceptions occurs while saves {} record ", object.getClass().getSimpleName(), e);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Exceptions occurs while saves {} record ", object.getClass().getSimpleName(), e);
     }
   }
 
-  public Object getRecordById(Object objectToReturn,int id) {
-      switch (objectToReturn.getClass().getSimpleName()) {
-          case "Users":
-              return getObjectById(dataBase.getUsersPath(), id, objectToReturn);
-          case "Books":
-              break;
-          default:
-              break;
-      }
-      return objectToReturn;
+  public Object getRecordById(Class objectToReturn, int id) {
+    switch (objectToReturn.getSimpleName()) {
+      case "Users":
+        return getObjectById(dataBase.getUsersPath(), id, objectToReturn);
+      case "Books":
+        return getObjectById(dataBase.getBooksPath(), id, objectToReturn);
+      case "Categories":
+        return getObjectById(dataBase.getCategoriesPath(), id, objectToReturn);
+      default:
+        break;
+    }
+    return null;
   }
 
-  public String getFileNameById(String fileBasePath, int id) {
-      File dir = new File(fileBasePath);
-      File[] files = dir.listFiles((d, name) -> name.endsWith(id+".json"));
-      return files[0].toString();
+  public Object getRecordByUniqueName(Class objectToReturn, String uniqueName) {
+    switch (objectToReturn.getSimpleName()) {
+      case "Users":
+        return getObjectByUniqueName(dataBase.getUsersPath(), uniqueName, objectToReturn);
+      case "Books":
+        return getObjectByUniqueName(dataBase.getBooksPath(), uniqueName, objectToReturn);
+      case "Categories":
+        return getObjectByUniqueName(dataBase.getCategoriesPath(), uniqueName, objectToReturn);
+      default:
+        break;
+    }
+    return null;
   }
-  public Object getObjectById(String fileBasePath, int id, Object objectToReturn){
-      ObjectMapper mapper = new ObjectMapper();
-      try {
-          objectToReturn = mapper.readValue(new File(getFileNameById(fileBasePath, id)), Object.class);
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
-      return objectToReturn;
+
+  private String getFileNameById(String fileBasePath, int id) {
+    return new File(fileBasePath).listFiles((d, name) -> name.endsWith(id + ".json"))[0].toString();
+  }
+
+  private String getFileNameByUniqueName(String fileBasePath, String UniqueName) {
+    return new File(fileBasePath)
+        .listFiles((d, name) -> name.startsWith(UniqueName + "___"))[0].toString();
+  }
+
+  private <T> T getObjectById(String fileBasePath, int id, Class<T> objectToReturn) {
+    try {
+      return objectMapper.readValue(new File(getFileNameById(fileBasePath, id)), objectToReturn);
+    } catch (Exception e) {
+      LOG.error("Exceptions occurs while get {} record by Id ", objectToReturn.getSimpleName(), e);
+    }
+    return null;
+  }
+
+  private <T> T getObjectByUniqueName(
+      String fileBasePath, String UniqueName, Class<T> objectToReturn) {
+    try {
+      return objectMapper.readValue(
+          new File(getFileNameByUniqueName(fileBasePath, UniqueName)), objectToReturn);
+    } catch (Exception e) {
+      LOG.error(
+          "Exceptions occurs while get {} record by unique name",
+          objectToReturn.getSimpleName(),
+          e);
+    }
+    return null;
   }
 }
