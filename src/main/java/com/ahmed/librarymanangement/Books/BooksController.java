@@ -25,9 +25,7 @@ public class BooksController {
     return booksService.getBook(id, name);
   }
 
-  @RequestMapping(
-      value = {"", "/book-id/{bookId}"},
-      method = POST)
+  @RequestMapping(value = "", method = POST)
   public Result saveBook(@RequestBody Books books) {
     return booksService.saveBook(books);
   }
